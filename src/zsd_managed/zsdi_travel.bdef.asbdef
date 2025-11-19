@@ -1,0 +1,46 @@
+managed; //implementation in class zbp_sdi_travel unique;
+strict ( 2 );
+
+define behavior for zsdi_travel alias travel
+implementation in class zbp_sdi_travel unique
+persistent table zsd_travel
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create; //( authorization : global );
+  update;
+  delete;
+  field ( readonly ) TravelId;
+  association _booking { create; }
+
+
+}
+
+define behavior for zsdi_book alias book
+implementation in class zbp_sdi_booking unique
+persistent table zsd_book
+lock dependent by _travel
+authorization dependent by _travel
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) TravelId, BookingId;
+  association _travel;
+  association _booksupp { create; }
+}
+
+define behavior for zsdi_booksuppl alias booksupp
+implementation in class zbp_sdi_bookingsupp unique
+persistent table zsd_booksupp
+lock dependent by _travel
+authorization dependent by _travel
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) TravelId, BookingId, BookingSupplementId;
+  association _travel;
+  association _book;
+}

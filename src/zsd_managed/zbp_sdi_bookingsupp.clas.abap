@@ -1,0 +1,5 @@
+CLASS zbp_sdi_bookingsupp DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zsdi_travel.
+ENDCLASS.
+
+CLASS zbp_sdi_bookingsupp IMPLEMENTATION.
+ENDCLASS.

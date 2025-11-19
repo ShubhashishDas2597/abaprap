@@ -1,0 +1,22 @@
+@Metadata.layer: #CORE
+annotate entity zi_flight_sd with
+{
+
+  @UI.hidden: true
+  CarrierId;
+  @UI.hidden: true
+  ConnectionId;
+  @UI.lineItem: [{ position: 10, label: 'Flight Date'  }]
+  FlightDate;
+  @UI.lineItem: [{ position: 20 }]
+  Price;
+  @UI.hidden: true
+  CurrencyCode;
+  @UI.lineItem: [{ position: 30 }]
+  PlaneTypeId;
+  @UI.lineItem: [{ position: 40 }]
+  SeatsMax;
+  @UI.lineItem: [{ position: 50 }]
+  SeatsOccupied;
+
+}

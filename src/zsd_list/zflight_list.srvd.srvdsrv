@@ -1,0 +1,5 @@
+@EndUserText.label: 'READ ONLY'
+define service ZFLIGHT_LIST {
+  expose zi_conn_sd;
+  expose zi_flight_sd;
+}
