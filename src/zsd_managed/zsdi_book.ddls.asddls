@@ -28,6 +28,7 @@ define view entity zsdi_book
       flight_price    as FlightPrice,
       currency_code   as CurrencyCode,
       booking_status  as BookingStatus,
+       @semantics.systemDateTime.localInstanceLastChangedAt: true
       last_changed_at as LastChangedAt,
       // exposed association
 

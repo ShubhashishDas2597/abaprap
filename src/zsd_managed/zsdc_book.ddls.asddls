@@ -1,6 +1,9 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Book Consumpution View'
 @Metadata.ignorePropagatedAnnotations: true
+
+@Metadata.allowExtensions: true
+
 define view entity zsdc_book
   as projection on zsdi_book
 {

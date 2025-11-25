@@ -32,6 +32,7 @@ define root view entity zsdi_travel
       created_by      as CreatedBy,
       created_at      as CreatedAt,
       last_changed_by as LastChangedBy,
+      @semantics.systemDateTime.localInstanceLastChangedAt: true
       last_changed_at as LastChangedAt,
 
       //      exposed associations

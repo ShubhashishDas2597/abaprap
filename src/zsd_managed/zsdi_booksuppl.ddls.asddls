@@ -22,6 +22,7 @@ define view entity zsdi_booksuppl
       @Semantics.amount.currencyCode: 'CurrencyCode'
       price                 as Price,
       currency_code         as CurrencyCode,
+      @Semantics.systemDateTime.localInstanceLastChangedAt: true
       last_changed_at       as LastChangedAt,
       //      exposed assoc
       _travel,
