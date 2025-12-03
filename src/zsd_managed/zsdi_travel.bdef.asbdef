@@ -16,6 +16,8 @@ early numbering
   field ( mandatory ) CustomerId;
   association _booking { create; }
 
+  action accept result [1] $self ;
+
   mapping for zsd_travel
     {
       TravelId      = travel_id;
@@ -44,6 +46,7 @@ authorization dependent by _travel
 etag master LastChangedAt
 early numbering
 {
+//  create;
   update;
   delete;
   field ( readonly ) TravelId, BookingId;

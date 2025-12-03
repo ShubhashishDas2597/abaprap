@@ -9,6 +9,7 @@ use etag
   use delete;
 
   use association _booking { create; }
+  use action accept;
 }
 
 define behavior for zsdc_book //alias <alias_name>

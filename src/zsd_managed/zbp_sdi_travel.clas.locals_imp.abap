@@ -3,6 +3,10 @@ CLASS lhc_travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
       IMPORTING keys REQUEST requested_authorizations FOR travel RESULT result.
+    METHODS accept FOR MODIFY
+      IMPORTING keys FOR ACTION travel~accept RESULT result.
+    METHODS earlynumbering_cba_booking FOR NUMBERING
+      IMPORTING entities FOR CREATE travel\_booking.
     METHODS earlynumbering_create FOR NUMBERING
       IMPORTING entities FOR CREATE travel.
 
@@ -63,9 +67,85 @@ CLASS lhc_travel IMPLEMENTATION.
 *                                 )
 *                                ).
       ENDIF.
+    ENDIF.
+  ENDMETHOD.
 
+  METHOD earlynumbering_cba_Booking.
+
+    DATA(lt_ent) = entities.
+    DATA: lv_max      TYPE /dmo/booking_id,
+          lv_new_bkid LIKE lv_max...
+
+    READ ENTITIES OF zsdi_travel IN LOCAL MODE
+      ENTITY travel BY \_booking
+      FROM CORRESPONDING #( entities )
+*      VALUE #( ( %key-TravelId = <fs_ent>-TravelId
+*                      %control = VALUE #( BookingId = if_abap_behv=>mk-on ) ) )
+      RESULT DATA(lt_bkid)
+      FAILED DATA(lt_fail).
+
+    LOOP AT lt_ent ASSIGNING FIELD-SYMBOL(<fs_ent>) USING KEY entity. "multiple travel
+
+*      READ ENTITIES OF zsdi_travel
+*      ENTITY travel BY \_booking
+*      FROM VALUE #( ( %key-TravelId = <fs_ent>-TravelId
+*                      %control = VALUE #( BookingId = if_abap_behv=>mk-on ) ) )
+*      RESULT DATA(lt_bkid)
+*      FAILED DATA(lt_fail).
+
+      SORT lt_bkid DESCENDING BY TravelId BookingId.
+
+      IF line_exists( lt_bkid[ TravelId = <fs_ent>-TravelId ] ).
+        lv_max = lt_bkid[ TravelId = <fs_ent>-TravelId ]-BookingId.
       ENDIF.
 
-    ENDMETHOD.
+      lv_new_bkid = lv_max + 1.
+
+      LOOP AT <fs_ent>-%target ASSIGNING FIELD-SYMBOL(<fs_book>).
+
+        mapped-book = VALUE #( ( %cid = <fs_book>-%cid
+                                 TravelId = <fs_ent>-TravelId
+                                 BookingId = lv_new_bkid ) ).
+      ENDLOOP.
+
+*      mapped-book = cid traveldid bookingid
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD accept.
+
+    LOOP AT keys ASSIGNING FIELD-SYMBOL(<fs_keys>) WHERE TravelId IS NOT INITIAL.
+
+      MODIFY ENTITIES OF zsdi_travel IN LOCAL MODE
+        ENTITY travel
+        UPDATE FIELDS ( OverallStatus )
+*        FROM
+        WITH VALUE #( ( %tky-TravelId = <fs_keys>-%tky-TravelId
+                        OverallStatus = 'A'
+*                               %control = VALUE #( OverallStatus = IF_abap_behv=>mk-on )
+                            ) ).
+    ENDLOOP.
+
+    READ ENTITIES OF zsdi_travel
+    ENTITY travel
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_final).
+
+*    result = VALUE #( FOR ls IN keys
+*                      ( TravelId = ls-TravelId
+*                        %param = CORRESPONDING #( ls )
+*                       )
+*                    ).
+
+
+    result = VALUE #( FOR ls IN lt_final
+                        ( TravelId = ls-TravelId
+                          %param = CORRESPONDING #( ls )
+                         )
+                      ).
+
+  ENDMETHOD.
 
 ENDCLASS.

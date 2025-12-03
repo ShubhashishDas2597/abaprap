@@ -45,7 +45,7 @@ CLASS zcl_read_ent IMPLEMENTATION.
       FAILED DATA(ltb_fail_short) .
 
     out->write( ltb_read_short ).
-
+    out->write( '---------------------' ).
 
     READ ENTITIES OF zsdi_travel
     ENTITY travel
@@ -54,7 +54,7 @@ CLASS zcl_read_ent IMPLEMENTATION.
                                         BookingFee = if_abap_behv=>mk-on ) ) )
     RESULT DATA(lt_read_long)
 
-    ENTITY book
+    ENTITY travel BY \_booking
     ALL FIELDS WITH VALUE #( ( %key-TravelId = '00000004' ) )
     RESULT DATA(ltb_read_long)
 
