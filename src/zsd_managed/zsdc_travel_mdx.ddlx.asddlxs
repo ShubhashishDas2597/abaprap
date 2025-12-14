@@ -3,7 +3,12 @@ annotate entity zsdc_travel with
 {
   @UI.lineItem: [{ position: 10 }, { type: #FOR_ACTION , dataAction: 'accept', 
                                      label: 'Accept travel', position: 10,
-                                     inline: true } ]
+                                     inline: true },
+                                     { type: #FOR_ACTION , dataAction: 'default', 
+                                     label: 'Set to Default', position: 10 },
+                                     { type: #FOR_ACTION , dataAction: 'copy', 
+                                     label: 'Copy Travel', position: 20 } ]
+
   @UI.selectionField: [{ position: 10 }]
   @UI.identification: [{ position: 10 }, { type: #FOR_ACTION , dataAction: 'accept', label: 'Accept travel', position: 10  }]
   TravelId;

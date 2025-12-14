@@ -5,6 +5,10 @@ CLASS lhc_travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys REQUEST requested_authorizations FOR travel RESULT result.
     METHODS accept FOR MODIFY
       IMPORTING keys FOR ACTION travel~accept RESULT result.
+    METHODS default FOR MODIFY
+      IMPORTING keys FOR ACTION travel~default RESULT result.
+    METHODS copy FOR MODIFY
+      IMPORTING keys FOR ACTION travel~copy.
     METHODS earlynumbering_cba_booking FOR NUMBERING
       IMPORTING entities FOR CREATE travel\_booking.
     METHODS earlynumbering_create FOR NUMBERING
@@ -103,9 +107,10 @@ CLASS lhc_travel IMPLEMENTATION.
 
       LOOP AT <fs_ent>-%target ASSIGNING FIELD-SYMBOL(<fs_book>).
 
-        mapped-book = VALUE #( ( %cid = <fs_book>-%cid
-                                 TravelId = <fs_ent>-TravelId
-                                 BookingId = lv_new_bkid ) ).
+        APPEND VALUE #( %cid = <fs_book>-%cid
+                        TravelId = <fs_ent>-TravelId
+                        BookingId = lv_new_bkid ) TO mapped-book.
+        lv_new_bkid =  lv_new_bkid + 1.
       ENDLOOP.
 
 *      mapped-book = cid traveldid bookingid
@@ -128,7 +133,7 @@ CLASS lhc_travel IMPLEMENTATION.
                             ) ).
     ENDLOOP.
 
-    READ ENTITIES OF zsdi_travel
+    READ ENTITIES OF zsdi_travel IN LOCAL MODE
     ENTITY travel
     ALL FIELDS WITH CORRESPONDING #( keys )
     RESULT DATA(lt_final).
@@ -145,6 +150,121 @@ CLASS lhc_travel IMPLEMENTATION.
                           %param = CORRESPONDING #( ls )
                          )
                       ).
+
+  ENDMETHOD.
+
+  METHOD default.
+
+    MODIFY ENTITIES OF zsdi_travel IN LOCAL MODE
+    ENTITY travel
+    UPDATE FIELDS ( OverallStatus )
+    WITH VALUE #( FOR ls IN keys
+                   ( %tky-TravelId = ls-%tky-TravelId
+                     OverallStatus = 'O'
+                   )
+                ).
+
+    result = VALUE #( FOR res IN keys
+                      ( travelid = res-%tky-TravelId
+                        %param = CORRESPONDING #( res )
+                      )
+                   ) .
+
+  ENDMETHOD.
+
+  METHOD copy.
+
+    DATA(lt_keys) = keys.
+    DELETE lt_keys WHERE TravelId IS INITIAL.
+    "10 keys aaye
+    " sare ke sare ek sath read kar liye
+    READ ENTITIES OF zsdi_travel IN LOCAL MODE
+    ENTITY travel
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_trv)
+
+    ENTITY travel BY \_booking
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_book).
+
+
+    DATA: lt_trvm  TYPE TABLE FOR CREATE zsdi_travel\\travel,
+          lT_bookM TYPE TABLE FOR CREATE zsdi_travel\\travel\_booking.
+*
+*    MODIFY ENTITIES OF zsdi_travel IN LOCAL MODE
+*    ENTITY travel
+*    CREATE "AUTO FILL CID
+*    FIELDS ( AgencyId BeginDate BookingFee
+*             CurrencyCode CustomerId Description
+*             TotalPrice )
+*    WITH VALUE #(
+*                    FOR ls IN lt_trv
+*                    ( %cid = |cid{ sy-tabix }|
+*                      AgencyId = ls-AgencyId
+*                      BeginDate = ls-BeginDate
+*                      BookingFee = ls-BookingFee
+*                      CurrencyCode =  ls-CurrencyCode
+*                      CustomerId =  ls-CustomerId
+*                      Description = ls-Description
+*                      TotalPrice = ls-TotalPrice
+*                     )
+*                )
+*
+*    ENTITY travel
+*    CREATE BY \_booking
+*    FIELDS ( CarrierId ConnectionId )
+*    WITH VALUE #( FOR ls1 IN lt_book
+*                  (
+*                    %cid_ref = ??? " need control on loop stmt
+*                  )
+*                )
+*
+*    .
+
+    DATA: lcid TYPE string.
+    DATA: lt_tempb TYPE TABLE FOR CREATE zsdi_travel\_booking.
+    LOOP AT lt_trv ASSIGNING FIELD-SYMBOL(<fs>).
+
+      CLEAR lcid.
+      lcid = |cid{ sy-tabix }|.
+      APPEND VALUE #( %cid = lcid
+                      %data = CORRESPONDING #( <fs> EXCEPT travelid ) ) TO lt_trvm.
+
+      DATA(ind) = line_index( lt_book[ TravelId = <fs>-travelid ]  ).
+      IF ind <> 0.
+        APPEND VALUE #( %cid_ref = lcid ) TO lt_bookm ASSIGNING FIELD-SYMBOL(<fsb>).
+        LOOP AT lt_book ASSIGNING FIELD-SYMBOL(<fsb1>) FROM ind.
+
+          IF <fsb1>-TravelId <> <fs>-travelid.
+            EXIT.
+          ENDIF.
+          APPEND VALUE #( %cid = |{ lcid }{ sy-tabix }|
+                              %data-carrierid = <fsb1>-CarrierId
+                             %data-connectionid = <fsb1>-ConnectionId
+                           ) TO <fsb>-%target .
+        ENDLOOP.
+
+      ENDIF.
+
+    ENDLOOP.
+
+    MODIFY ENTITIES OF zsdi_travel IN LOCAL MODE
+    ENTITY travel
+      CREATE "AUTO FILL CID
+      FIELDS ( AgencyId BeginDate BookingFee
+               CurrencyCode CustomerId Description
+               TotalPrice )
+      WITH lt_trvm
+
+*      CREATE BY \_booking
+*      FIELDS ( CarrierId ConnectionId )
+*      WITH lt_bookm
+      MAPPED DATA(lt_map)
+      REPORTED DATA(lt_rep)
+      FAILED DATA(lt_f)
+      .
+
+    mapped-travel = lt_map-travel.
 
   ENDMETHOD.
 

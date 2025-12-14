@@ -16,7 +16,10 @@ early numbering
   field ( mandatory ) CustomerId;
   association _booking { create; }
 
+  factory action copy[1] ;
+
   action accept result [1] $self ;
+  action default result [1] $self;
 
   mapping for zsd_travel
     {
