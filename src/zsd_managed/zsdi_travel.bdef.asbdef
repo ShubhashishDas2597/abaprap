@@ -14,11 +14,11 @@ early numbering
   delete;
   field ( readonly ) TravelId;
   field ( mandatory ) CustomerId;
-  association _booking { create; }
+  association _booking { create ( features : instance ) ; }
 
   factory action copy[1] ;
 
-  action accept result [1] $self ;
+  action ( features : instance ) accept result [1] $self ;
   action default result [1] $self;
 
   mapping for zsd_travel

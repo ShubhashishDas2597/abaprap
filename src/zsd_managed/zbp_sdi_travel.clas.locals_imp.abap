@@ -9,6 +9,8 @@ CLASS lhc_travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR ACTION travel~default RESULT result.
     METHODS copy FOR MODIFY
       IMPORTING keys FOR ACTION travel~copy.
+    METHODS get_instance_features FOR INSTANCE FEATURES
+      IMPORTING keys REQUEST requested_features FOR travel RESULT result.
     METHODS earlynumbering_cba_booking FOR NUMBERING
       IMPORTING entities FOR CREATE travel\_booking.
     METHODS earlynumbering_create FOR NUMBERING
@@ -180,11 +182,11 @@ CLASS lhc_travel IMPLEMENTATION.
     " sare ke sare ek sath read kar liye
     READ ENTITIES OF zsdi_travel IN LOCAL MODE
     ENTITY travel
-    ALL FIELDS WITH CORRESPONDING #( keys )
+    ALL FIELDS WITH CORRESPONDING #( lt_keys )
     RESULT DATA(lt_trv)
 
     ENTITY travel BY \_booking
-    ALL FIELDS WITH CORRESPONDING #( keys )
+    ALL FIELDS WITH CORRESPONDING #( lt_keys )
     RESULT DATA(lt_book).
 
 
@@ -226,7 +228,7 @@ CLASS lhc_travel IMPLEMENTATION.
     LOOP AT lt_trv ASSIGNING FIELD-SYMBOL(<fs>).
 
       CLEAR lcid.
-      lcid = |cid{ sy-tabix }|.
+      lcid = keys[ TravelId = <fs>-TravelId ]-%cid .  "|cid{ sy-tabix }|.
       APPEND VALUE #( %cid = lcid
                       %data = CORRESPONDING #( <fs> EXCEPT travelid ) ) TO lt_trvm.
 
@@ -256,15 +258,41 @@ CLASS lhc_travel IMPLEMENTATION.
                TotalPrice )
       WITH lt_trvm
 
-*      CREATE BY \_booking
-*      FIELDS ( CarrierId ConnectionId )
-*      WITH lt_bookm
+      CREATE BY \_booking
+      FIELDS ( CarrierId ConnectionId )
+      WITH lt_bookm
       MAPPED DATA(lt_map)
       REPORTED DATA(lt_rep)
       FAILED DATA(lt_f)
       .
 
-    mapped-travel = lt_map-travel.
+    mapped = lt_map.
+
+  ENDMETHOD.
+
+  METHOD get_instance_features.
+
+    READ ENTITIES OF zsdi_travel IN LOCAL MODE
+    ENTITY travel
+    FIELDS ( TravelId OverallStatus )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_res).
+
+    LOOP AT keys ASSIGNING FIELD-SYMBOL(<fs>).
+
+      DATA(status) = lt_res[ %tky = <fs>-%tky ]-OverallStatus .
+
+      APPEND VALUE #( %tky = <fs>-%tky
+                      %features-%action-accept = COND #( WHEN status = 'A' THEN if_abap_behv=>fc-o-disabled )
+                      %features-%assoc-_booking = COND #( WHEN status = 'A' THEN if_abap_behv=>fc-o-disabled )
+                    )
+                TO result.
+    ENDLOOP.
+
+*    result = VALUE #( FOR ls in keys
+*                        (  %tky = ls-%tky
+*                           %features-%action-accept = if_abap_behv=>fc-o-disabled  )
+*                     ).                Same effect
 
   ENDMETHOD.
 
