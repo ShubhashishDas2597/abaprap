@@ -21,6 +21,8 @@ early numbering
   action ( features : instance ) accept result [1] $self ;
   action default result [1] $self;
 
+  validation validateCust on save { create; field CustomerId ; }
+
   mapping for zsd_travel
     {
       TravelId      = travel_id;

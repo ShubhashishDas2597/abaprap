@@ -11,6 +11,8 @@ CLASS lhc_travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR ACTION travel~copy.
     METHODS get_instance_features FOR INSTANCE FEATURES
       IMPORTING keys REQUEST requested_features FOR travel RESULT result.
+    METHODS validatecust FOR VALIDATE ON SAVE
+      IMPORTING keys FOR travel~validatecust.
     METHODS earlynumbering_cba_booking FOR NUMBERING
       IMPORTING entities FOR CREATE travel\_booking.
     METHODS earlynumbering_create FOR NUMBERING
@@ -295,5 +297,42 @@ CLASS lhc_travel IMPLEMENTATION.
 *                     ).                Same effect
 
   ENDMETHOD.
+
+  METHOD validateCust.
+
+    READ ENTITIES OF zsdi_travel IN LOCAL MODE
+    ENTITY travel
+    FIELDS ( TravelId CustomerId )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_trv).
+
+    IF lt_trv IS NOT INITIAL.
+
+      DELETE lt_trv WHERE CustomerId IS INITIAL.
+
+      SELECT customer_id FROM /dmo/customer
+      FOR ALL ENTRIES IN @lt_trv WHERE customer_id = @lt_trv-CustomerId INTO TABLE @DATA(lt_data).
+
+      LOOP AT lt_trv INTO DATA(ls).
+
+        IF NOT line_exists( lt_data[ customer_id = ls-TravelId ] ).
+
+            APPEND VALUE #( %tky = ls-%tky ) to failed-travel.
+
+        ENDIF.
+
+      ENDLOOP.
+
+    ENDIF.
+
+  ENDMETHOD.
+
+
+
+
+
+
+
+
 
 ENDCLASS.
