@@ -13,6 +13,8 @@ CLASS lhc_travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys REQUEST requested_features FOR travel RESULT result.
     METHODS validatecust FOR VALIDATE ON SAVE
       IMPORTING keys FOR travel~validatecust.
+    METHODS valdate FOR VALIDATE ON SAVE
+      IMPORTING keys FOR travel~valdate.
     METHODS earlynumbering_cba_booking FOR NUMBERING
       IMPORTING entities FOR CREATE travel\_booking.
     METHODS earlynumbering_create FOR NUMBERING
@@ -315,9 +317,16 @@ CLASS lhc_travel IMPLEMENTATION.
 
       LOOP AT lt_trv INTO DATA(ls).
 
-        IF NOT line_exists( lt_data[ customer_id = ls-TravelId ] ).
+        IF NOT line_exists( lt_data[ customer_id = ls-CustomerId ] ).
 
-            APPEND VALUE #( %tky = ls-%tky ) to failed-travel.
+          APPEND VALUE #( %tky = ls-%tky ) TO failed-travel.
+          APPEND VALUE #(  %tky = ls-%tky
+               %msg      = NEW /dmo/cm_flight_messages(
+                               customer_id = ls-CustomerId
+                               textid      = /dmo/cm_flight_messages=>customer_unkown
+                               severity    = if_abap_behv_message=>severity-error )
+               %element-CustomerId = if_abap_behv=>mk-on
+            ) TO reported-travel.
 
         ENDIF.
 
@@ -327,12 +336,32 @@ CLASS lhc_travel IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD valDate.
 
+    READ ENTITIES OF zsdi_travel IN LOCAL MODE
+    ENTITY travel
+    FIELDS ( TravelId BeginDate EndDate )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_trv).
 
+    DELETE lt_trv WHERE begindate IS INITIAL AND EndDate IS INITIAL.
 
+    LOOP AT lt_trv INTO DATA(ls).
 
+      IF ls-BeginDate > ls-EndDate.
 
+        APPEND VALUE #( %tky = ls-%tky ) TO failed-travel.
+        APPEND VALUE #( %tky = ls-%tky
+        %msg      = NEW /dmo/cm_flight_messages(
+                             begin_date = ls-BeginDate
+                             textid      = /dmo/cm_flight_messages=>begin_date_bef_end_date
+                             severity    = if_abap_behv_message=>severity-error )
+                             ) TO reported-travel.
 
+      ENDIF.
 
+    ENDLOOP.
+
+  ENDMETHOD.
 
 ENDCLASS.

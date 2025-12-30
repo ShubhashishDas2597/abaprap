@@ -22,6 +22,7 @@ early numbering
   action default result [1] $self;
 
   validation validateCust on save { create; field CustomerId ; }
+  validation valDate on save { create; field BeginDate, EndDate ; }
 
   mapping for zsd_travel
     {
