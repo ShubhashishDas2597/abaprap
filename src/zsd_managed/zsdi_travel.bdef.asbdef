@@ -3,7 +3,7 @@ strict ( 2 );
 
 define behavior for zsdi_travel alias travel
 implementation in class zbp_sdi_travel unique
-persistent table zsd_travel
+persistent table zsd_travelL
 lock master
 authorization master ( instance )
 etag master LastChangedAt
@@ -24,7 +24,7 @@ early numbering
   validation validateCust on save { create; field CustomerId ; }
   validation valDate on save { create; field BeginDate, EndDate ; }
 
-  mapping for zsd_travel
+  mapping for zsd_travelL
     {
       TravelId      = travel_id;
       AgencyId      = agency_id;
@@ -46,7 +46,7 @@ early numbering
 
 define behavior for zsdi_book alias book
 implementation in class zbp_sdi_booking unique
-persistent table zsd_book
+persistent table zsd_bookK
 lock dependent by _travel
 authorization dependent by _travel
 etag master LastChangedAt
@@ -59,7 +59,7 @@ early numbering
   association _travel;
   association _booksupp { create; }
 
-  mapping for zsd_book
+  mapping for zsd_bookK
     {
       TravelId      = travel_id;
       BookingId     = booking_id;
@@ -78,7 +78,7 @@ early numbering
 
 define behavior for zsdi_booksuppl alias booksupp
 implementation in class zbp_sdi_bookingsupp unique
-persistent table zsd_booksupp
+persistent table zsd_bookKsupp
 lock dependent by _travel
 authorization dependent by _travel
 etag master LastChangedAt
@@ -89,7 +89,7 @@ etag master LastChangedAt
   association _travel;
   association _book;
 
-  mapping for zsd_booksupp
+  mapping for zsd_bookKsupp
     {
       TravelId            = travel_id;
       BookingId           = booking_id;

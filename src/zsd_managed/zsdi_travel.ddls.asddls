@@ -9,7 +9,7 @@
 }
 @Search.searchable: true
 define root view entity zsdi_travel
-  as select from zsd_travel
+  as select from zsd_travelL
   composition [0..*] of zsdi_book                as _booking
   association [0..1] to /DMO/I_Agency            as _agency on $projection.AgencyId = _agency.AgencyID
   association [0..1] to /DMO/I_Customer          as _cust   on $projection.CustomerId = _cust.CustomerID

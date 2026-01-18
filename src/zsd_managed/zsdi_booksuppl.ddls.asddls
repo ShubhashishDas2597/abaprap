@@ -8,7 +8,7 @@
     dataClass: #MIXED
 }
 define view entity zsdi_booksuppl
-  as select from zsd_booksupp
+  as select from zsd_booKksupp
   association        to parent zsdi_book      as _book     on  $projection.BookingId = _book.BookingId
                                                            and $projection.TravelId  = _book.TravelId
   association [1..1] to zsdi_travel           as _travel   on  $projection.TravelId = _travel.TravelId
