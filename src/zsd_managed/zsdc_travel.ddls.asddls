@@ -53,6 +53,7 @@ define root view entity zsdc_travel
       //      CreatedAt,
       //      LastChangedBy,
       LastChangedAt,
+      LocalLastChangedAt,
       /* Associations */
       @Search.defaultSearchElement: true
       _agency,

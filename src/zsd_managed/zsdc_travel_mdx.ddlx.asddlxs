@@ -1,12 +1,12 @@
 @Metadata.layer: #INDUSTRY
 annotate entity zsdc_travel with
 {
-  @UI.lineItem: [{ position: 10 }, { type: #FOR_ACTION , dataAction: 'accept', 
+  @UI.lineItem: [{ position: 10 }, { type: #FOR_ACTION , dataAction: 'accept',
                                      label: 'Accept travel', position: 10,
                                      inline: true },
-                                     { type: #FOR_ACTION , dataAction: 'default', 
+                                     { type: #FOR_ACTION , dataAction: 'default',
                                      label: 'Set to Default', position: 10 },
-                                     { type: #FOR_ACTION , dataAction: 'copy', 
+                                     { type: #FOR_ACTION , dataAction: 'copy',
                                      label: 'Copy Travel', position: 20 } ]
 
   @UI.selectionField: [{ position: 10 }]
@@ -65,5 +65,6 @@ annotate entity zsdc_travel with
   Text;
   @UI.lineItem: [{ position: 140 }]
   LastChangedAt;
-
+  @UI.lineItem: [{ position: 150 }]
+  locallastchangedat;
 }

@@ -9,7 +9,7 @@
 }
 @Search.searchable: true
 define root view entity zsdi_travel
-  as select from zsd_travelL
+  as select from zsd_travell
   composition [0..*] of zsdi_book                as _booking
   association [0..1] to /DMO/I_Agency            as _agency on $projection.AgencyId = _agency.AgencyID
   association [0..1] to /DMO/I_Customer          as _cust   on $projection.CustomerId = _cust.CustomerID
@@ -29,10 +29,15 @@ define root view entity zsdi_travel
       currency_code   as CurrencyCode,
       description     as Description,
       overall_status  as OverallStatus,
+
       created_by      as CreatedBy,
+      @Semantics.systemDateTime.createdAt: true
       created_at      as CreatedAt,
       last_changed_by as LastChangedBy,
-      @semantics.systemDateTime.localInstanceLastChangedAt: true
+      @Semantics.systemDateTime.localInstanceLastChangedAt: true
+      local_last_changed_at as LocalLastChangedAt,
+      
+      @Semantics.systemDateTime.lastChangedAt: true
       last_changed_at as LastChangedAt,
 
       //      exposed associations

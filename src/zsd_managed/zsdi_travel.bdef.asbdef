@@ -1,12 +1,16 @@
 managed; //implementation in class zbp_sdi_travel unique;
 strict ( 2 );
 
+with draft;
+
 define behavior for zsdi_travel alias travel
 implementation in class zbp_sdi_travel unique
-persistent table zsd_travelL
+persistent table zsd_travell
 lock master
+total etag LastChangedAt
+draft table zsd_travell_d
 authorization master ( instance )
-etag master LastChangedAt
+etag master LocalLastChangedAt
 early numbering
 {
   create; //( authorization : global );
@@ -14,52 +18,64 @@ early numbering
   delete;
   field ( readonly ) TravelId;
   field ( mandatory ) CustomerId;
-  association _booking { create ( features : instance ) ; }
+  association _booking { create ( features : instance ); with draft; }
 
-  factory action copy[1] ;
+  factory action copy [1];
 
-  action ( features : instance ) accept result [1] $self ;
+  action ( features : instance ) accept result [1] $self;
   action default result [1] $self;
 
-  validation validateCust on save { create; field CustomerId ; }
-  validation valDate on save { create; field BeginDate, EndDate ; }
+  validation validateCust on save { create; field CustomerId; }
+  validation valDate on save { create; field BeginDate, EndDate; }
 
-  mapping for zsd_travelL
+  draft action Edit;
+  draft action Resume;
+  draft action Activate optimized;
+  draft determine action Prepare
+  {
+    validation validateCust;
+    validation valDate;
+  }
+  draft action Discard;
+
+  mapping for zsd_travell
     {
-      TravelId      = travel_id;
-      AgencyId      = agency_id;
-      CustomerId    = customer_id;
-      BeginDate     = begin_date;
-      EndDate       = end_date;
-      BookingFee    = booking_fee;
-      TotalPrice    = total_price;
-      CurrencyCode  = currency_code;
-      Description   = description;
-      OverallStatus = overall_status;
-      CreatedBy     = created_by;
-      CreatedAt     = created_at;
-      LastChangedBy = last_changed_by;
-      LastChangedAt = last_changed_at;
+      TravelId           = travel_id;
+      AgencyId           = agency_id;
+      CustomerId         = customer_id;
+      BeginDate          = begin_date;
+      EndDate            = end_date;
+      BookingFee         = booking_fee;
+      TotalPrice         = total_price;
+      CurrencyCode       = currency_code;
+      Description        = description;
+      OverallStatus      = overall_status;
+      CreatedBy          = created_by;
+      CreatedAt          = created_at;
+      LastChangedBy      = last_changed_by;
+      LastChangedAt      = last_changed_at;
+      LocalLastChangedAt = local_last_changed_at;
     }
 
 }
 
 define behavior for zsdi_book alias book
 implementation in class zbp_sdi_booking unique
-persistent table zsd_bookK
+persistent table zsd_bookk
 lock dependent by _travel
+draft table zsd_bookk_d
 authorization dependent by _travel
 etag master LastChangedAt
 early numbering
 {
-//  create;
+  //  create;
   update;
   delete;
   field ( readonly ) TravelId, BookingId;
-  association _travel;
-  association _booksupp { create; }
+  association _travel{ with draft; }
+  association _booksupp { create; with draft; }
 
-  mapping for zsd_bookK
+  mapping for zsd_bookk
     {
       TravelId      = travel_id;
       BookingId     = booking_id;
@@ -78,18 +94,19 @@ early numbering
 
 define behavior for zsdi_booksuppl alias booksupp
 implementation in class zbp_sdi_bookingsupp unique
-persistent table zsd_bookKsupp
+persistent table zsd_bookksupp
 lock dependent by _travel
+draft table zsd_bookksupp_d
 authorization dependent by _travel
 etag master LastChangedAt
 {
   update;
   delete;
   field ( readonly ) TravelId, BookingId, BookingSupplementId;
-  association _travel;
-  association _book;
+  association _travel{ with draft; }
+  association _book{ with draft; }
 
-  mapping for zsd_bookKsupp
+  mapping for zsd_bookksupp
     {
       TravelId            = travel_id;
       BookingId           = booking_id;
