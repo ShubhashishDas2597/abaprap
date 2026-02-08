@@ -15,6 +15,8 @@ CLASS lhc_travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR travel~validatecust.
     METHODS valdate FOR VALIDATE ON SAVE
       IMPORTING keys FOR travel~valdate.
+    METHODS get_global_authorizations FOR GLOBAL AUTHORIZATION
+      IMPORTING REQUEST requested_authorizations FOR travel RESULT result.
     METHODS earlynumbering_cba_booking FOR NUMBERING
       IMPORTING entities FOR CREATE travel\_booking.
     METHODS earlynumbering_create FOR NUMBERING
@@ -38,7 +40,7 @@ CLASS lhc_travel IMPLEMENTATION.
     DATA(lt_ent) = entities.
 
     IF lt_ent[] IS NOT INITIAL.
-      DELETE lt_ent WHERE TravelId IS NOT INITIAL. "draft sceanrio me key field alreay avl hoti hai, jb key hai to usnme nubering nhi dena hai.
+      "DELETE lt_ent WHERE TravelId IS NOT INITIAL. "draft sceanrio me key field alreay avl hoti hai, jb key hai to usnme nubering nhi dena hai.
       TRY.
           cl_numberrange_runtime=>number_get(
             EXPORTING
@@ -362,6 +364,9 @@ CLASS lhc_travel IMPLEMENTATION.
 
     ENDLOOP.
 
+  ENDMETHOD.
+
+  METHOD get_global_authorizations.
   ENDMETHOD.
 
 ENDCLASS.

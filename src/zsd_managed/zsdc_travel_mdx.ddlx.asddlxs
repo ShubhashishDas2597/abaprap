@@ -66,5 +66,5 @@ annotate entity zsdc_travel with
   @UI.lineItem: [{ position: 140 }]
   LastChangedAt;
   @UI.lineItem: [{ position: 150 }]
-  locallastchangedat;
+  LocalLastChangedAt;
 }
