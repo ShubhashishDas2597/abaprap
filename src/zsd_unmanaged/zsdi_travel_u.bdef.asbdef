@@ -1,0 +1,27 @@
+unmanaged implementation in class zbp_sdi_travel_u unique;
+strict ( 2 );
+
+define behavior for zsdi_travel_u //alias <alias_name>
+//late numbering
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create ( authorization : global );
+  update;
+  delete;
+  field ( readonly ) TravelId;
+  association _book { create; }
+}
+
+define behavior for zsdi_book_u //alias <alias_name>
+//late numbering
+lock dependent by _travel
+authorization dependent by _travel
+//etag master <field_name>
+{
+  update;
+  delete;
+  field ( readonly ) TravelId, BookingId;
+  association _travel;
+}

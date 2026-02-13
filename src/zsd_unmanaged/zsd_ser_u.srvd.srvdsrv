@@ -1,0 +1,5 @@
+@EndUserText.label: 'test serv'
+define service Zsd_ser_u {
+  expose zsdc_travel_u;
+  expose zsdc_book_u;
+}
