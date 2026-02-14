@@ -101,6 +101,8 @@ CLASS lsc_ZSDI_TRAVEL_U DEFINITION INHERITING FROM cl_abap_behavior_saver.
 
     METHODS check_before_save REDEFINITION.
 
+    METHODS adjust_numbers REDEFINITION.
+
     METHODS save REDEFINITION.
 
     METHODS cleanup REDEFINITION.
@@ -115,6 +117,9 @@ CLASS lsc_ZSDI_TRAVEL_U IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD check_before_save.
+  ENDMETHOD.
+
+  METHOD adjust_numbers.
   ENDMETHOD.
 
   METHOD save.
