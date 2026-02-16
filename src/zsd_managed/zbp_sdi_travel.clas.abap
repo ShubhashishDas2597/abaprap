@@ -1,5 +1,9 @@
 CLASS zbp_sdi_travel DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zsdi_travel.
+protected section.
+private section.
 ENDCLASS.
 
-CLASS zbp_sdi_travel IMPLEMENTATION.
+
+
+CLASS ZBP_SDI_TRAVEL IMPLEMENTATION.
 ENDCLASS.

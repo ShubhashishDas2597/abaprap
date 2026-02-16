@@ -14,20 +14,27 @@ define root view entity zsdc_travel_u
       @UI.lineItem: [{ position: 10 }]
   key TravelId,
       @UI.lineItem: [{ position: 20 }]
+      @UI.identification: [{ position: 20 }]
       AgencyId,
       @UI.lineItem: [{ position: 30 }]
+      @UI.identification: [{ position: 30 }]
       CustomerId,
       @UI.lineItem: [{ position: 40 }]
+      @UI.identification: [{ position: 40 }]
       BeginDate,
       @UI.lineItem: [{ position: 50 }]
+      @UI.identification: [{ position: 50 }]
       EndDate,
       @UI.lineItem: [{ position: 60 }]
+      @UI.identification: [{ position: 60 }]
       @Semantics.amount.currencyCode: 'CurrencyCode'
       BookingFee,
       @UI.lineItem: [{ position: 70 }]
+      @UI.identification: [{ position: 70 }]
       @Semantics.amount.currencyCode: 'CurrencyCode'
       TotalPrice,
       CurrencyCode,
+      @UI.identification: [{ position: 80 }]
       Description,
       OverallStatus,
       CreatedBy,

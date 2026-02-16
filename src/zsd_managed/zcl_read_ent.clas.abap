@@ -12,7 +12,8 @@ ENDCLASS.
 
 
 
-CLASS zcl_read_ent IMPLEMENTATION.
+CLASS ZCL_READ_ENT IMPLEMENTATION.
+
 
   METHOD if_oo_adt_classrun~main.
 

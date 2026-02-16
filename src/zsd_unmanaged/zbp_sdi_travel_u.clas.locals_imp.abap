@@ -2,31 +2,31 @@ CLASS lhc_zsdi_travel_u DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
     METHODS get_instance_authorizations FOR INSTANCE AUTHORIZATION
-      IMPORTING keys REQUEST requested_authorizations FOR zsdi_travel_u RESULT result.
+      IMPORTING keys REQUEST requested_authorizations FOR travel RESULT result.
 
     METHODS get_global_authorizations FOR GLOBAL AUTHORIZATION
-      IMPORTING REQUEST requested_authorizations FOR zsdi_travel_u RESULT result.
+      IMPORTING REQUEST requested_authorizations FOR travel RESULT result.
 
     METHODS create FOR MODIFY
-      IMPORTING entities FOR CREATE zsdi_travel_u.
+      IMPORTING entities FOR CREATE travel.
 
     METHODS update FOR MODIFY
-      IMPORTING entities FOR UPDATE zsdi_travel_u.
+      IMPORTING entities FOR UPDATE travel.
 
     METHODS delete FOR MODIFY
-      IMPORTING keys FOR DELETE zsdi_travel_u.
+      IMPORTING keys FOR DELETE travel.
 
     METHODS read FOR READ
-      IMPORTING keys FOR READ zsdi_travel_u RESULT result.
+      IMPORTING keys FOR READ travel RESULT result.
 
     METHODS lock FOR LOCK
-      IMPORTING keys FOR LOCK zsdi_travel_u.
+      IMPORTING keys FOR LOCK travel.
 
     METHODS rba_Book FOR READ
-      IMPORTING keys_rba FOR READ zsdi_travel_u\_Book FULL result_requested RESULT result LINK association_links.
+      IMPORTING keys_rba FOR READ travel\_Book FULL result_requested RESULT result LINK association_links.
 
     METHODS cba_Book FOR MODIFY
-      IMPORTING entities_cba FOR CREATE zsdi_travel_u\_Book.
+      IMPORTING entities_cba FOR CREATE travel\_Book.
 
 ENDCLASS.
 
@@ -39,6 +39,10 @@ CLASS lhc_zsdi_travel_u IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create.
+
+
+
+
   ENDMETHOD.
 
   METHOD update.

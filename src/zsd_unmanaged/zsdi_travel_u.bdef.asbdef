@@ -1,11 +1,11 @@
 unmanaged implementation in class zbp_sdi_travel_u unique;
 strict ( 2 );
 
-define behavior for zsdi_travel_u //alias <alias_name>
+define behavior for zsdi_travel_u alias travel
 late numbering
 lock master
 authorization master ( instance )
-//etag master <field_name>
+etag master LocalLastChangedAt
 {
   create ( authorization : global );
   update;
@@ -14,11 +14,11 @@ authorization master ( instance )
   association _book { create; }
 }
 
-define behavior for zsdi_book_u //alias <alias_name>
+define behavior for zsdi_book_u
 late numbering
 lock dependent by _travel
 authorization dependent by _travel
-//etag master <field_name>
+etag master LastChangedAt
 {
   update;
   delete;

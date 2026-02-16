@@ -1,5 +1,9 @@
 CLASS zbp_sdi_booking DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zsdi_travel.
+protected section.
+private section.
 ENDCLASS.
 
-CLASS zbp_sdi_booking IMPLEMENTATION.
+
+
+CLASS ZBP_SDI_BOOKING IMPLEMENTATION.
 ENDCLASS.
