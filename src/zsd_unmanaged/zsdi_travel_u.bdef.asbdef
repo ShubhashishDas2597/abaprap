@@ -12,6 +12,21 @@ etag master LocalLastChangedAt
   delete;
   field ( readonly ) TravelId;
   association _book { create; }
+
+  mapping for zsd_travell
+    {
+      TravelId      = travel_id;
+      AgencyId      = agency_id;
+      BeginDate     = begin_date;
+      BookingFee    = booking_fee;
+      CurrencyCode  = currency_code;
+      CustomerID    = customer_id;
+      EndDate       = end_date;
+      LastChangedAt = last_changed_at;
+      Description   = description;
+      OverallStatus = overall_status;
+      TotalPrice    = total_price;
+    }
 }
 
 define behavior for zsdi_book_u

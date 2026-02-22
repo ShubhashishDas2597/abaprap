@@ -39,10 +39,16 @@ CLASS lhc_zsdi_travel_u IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD create.
-
-
-
-
+    IF entities IS NOT INITIAL.
+      zsdcl_travel_aux=>get_instance(  )->create(
+        EXPORTING
+          entities = entities
+        CHANGING
+          mapped   = mapped
+          failed   = failed
+          reported = reported
+      ).
+    ENDIF.
   ENDMETHOD.
 
   METHOD update.
@@ -124,9 +130,15 @@ CLASS lsc_ZSDI_TRAVEL_U IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD adjust_numbers.
+    zsdcl_travel_aux=>get_instance( )->adjust_nr(
+      CHANGING
+        mapped   = mapped
+        reported = reported
+    ).
   ENDMETHOD.
 
   METHOD save.
+    zsdcl_travel_aux=>get_instance( )->savedata( ).
   ENDMETHOD.
 
   METHOD cleanup.
