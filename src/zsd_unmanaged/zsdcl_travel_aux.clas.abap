@@ -61,6 +61,34 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD adjust_nr.
+    DATA: lt_mappedtrv TYPE TABLE FOR MAPPED LATE zsdi_travel_u\\travel .
+    TRY.
+        cl_numberrange_runtime=>number_get(
+          EXPORTING
+            nr_range_nr       = '01'
+            object            = '/DMO/TRAVL'
+            quantity          = CONV #( lines( gt_travel ) )
+          IMPORTING
+            number            = DATA(lv_key)
+            returncode        = DATA(lv_return_code)
+            returned_quantity = DATA(lv_returned_quantity)
+        ).
+      CATCH cx_number_ranges INTO DATA(lx_number_ranges).
+        ASSERT 1 = 2.
+    ENDTRY.
+    ASSERT lv_returned_quantity = lines( gt_travel ).
+
+    LOOP AT gt_travel ASSIGNING FIELD-SYMBOL(<fs_trv>).
+
+      DATA(lv_exist) = CONV i( lv_key ) - CONV i( lv_returned_quantity ).
+      DATA(l_id) = ( lv_exist ) + 1.
+*        1 2 3                   4000            4003-3 = 4000
+      <fs_trv>-travel_id = l_id.
+
+      APPEND VALUE #( travelid = l_id ) TO lt_mappedtrv.
+    ENDLOOP.
+
+    mapped-travel = lt_mappedtrv.
 
   ENDMETHOD.
 
