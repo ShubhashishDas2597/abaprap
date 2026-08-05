@@ -1,0 +1,5 @@
+CLASS zbp_sdi30_trv_singleton DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zsdi30_trv_singleton.
+ENDCLASS.
+
+CLASS zbp_sdi30_trv_singleton IMPLEMENTATION.
+ENDCLASS.

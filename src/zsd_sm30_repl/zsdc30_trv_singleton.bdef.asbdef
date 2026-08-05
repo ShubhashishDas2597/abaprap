@@ -1,0 +1,24 @@
+projection;
+strict ( 2 );
+use draft;
+
+define behavior for zsdc30_trv_singleton //alias <alias_name>
+{
+
+  use action Activate;
+  use action Edit;
+  use action Discard;
+  use action Prepare;
+  use action Resume;
+
+  use association _trv { create; with draft; }
+}
+
+
+define behavior for Zsdc30_Travel //alias <alias_name>
+use etag
+{
+  use update;
+  use delete;
+  use association _strv { with draft; }
+}

@@ -1,4 +1,10 @@
-CLASS zbp_sdi_travel_u DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zsdi_travel_u.
+class ZBP_SDI_TRAVEL_U definition
+  public
+  create private .
+
+public section.
+protected section.
+private section.
 ENDCLASS.
 
 

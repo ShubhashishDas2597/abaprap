@@ -1,0 +1,5 @@
+@EndUserText.label: 'Service defn Sm30'
+define service Zsd_ser_30 {
+  expose zsdc30_trv_singleton;
+  expose Zsdc30_Travel;
+}

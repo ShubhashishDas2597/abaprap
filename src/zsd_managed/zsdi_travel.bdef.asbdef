@@ -72,7 +72,7 @@ early numbering
   delete;
   field ( readonly ) TravelId, BookingId;
   association _travel{ with draft; }
-  association _booksupp { create; with draft; }
+  association _booksupp { create; }//with draft; }
 
   mapping for zsd_bookk
     {

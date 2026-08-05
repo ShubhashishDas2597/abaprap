@@ -1,0 +1,61 @@
+managed implementation in class zbp_sdi30_trv_singleton unique;
+strict ( 2 );
+with draft;
+
+define behavior for zsdi30_trv_singleton //alias <alias_name>
+with unmanaged save
+draft table zsd30_dft_trv_s1
+//persistent table t002
+lock master
+total etag maxlastchangedat
+authorization master ( instance )
+//etag master <field_name>
+{
+  //  create ( authorization : global );
+  //  update;
+  //  delete;
+  field ( readonly ) SingletonEntry;
+  association _trv { create; with draft; }
+
+  draft action Edit;
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Resume;
+  draft determine action Prepare;
+
+
+}
+
+define behavior for ZSDi30_TRAVEL //alias <alias_name>
+persistent table zsd_travell
+lock dependent by _strv
+authorization dependent by _strv
+draft table zsd30_dft_trv
+etag master LocalLastChangedAt
+{
+  update;
+  delete;
+  field ( readonly ) TravelId; //, AgencyId, CustomerId;
+  field ( readonly ) SingletonEntry;
+  association _strv { with draft; }
+
+  mapping for zsd_travell
+    {
+      TravelId           = travel_id;
+      AgencyId           = agency_id;
+      CustomerId         = customer_id;
+      BeginDate          = begin_date;
+      EndDate            = end_date;
+      BookingFee         = booking_fee;
+      TotalPrice         = total_price;
+      CurrencyCode       = currency_code;
+      Description        = description;
+      OverallStatus      = overall_status;
+      CreatedBy          = created_by;
+      CreatedAt          = created_at;
+      LastChangedBy      = last_changed_by;
+      LastChangedAt      = last_changed_at;
+      LocalLastChangedAt = local_last_changed_at;
+    }
+
+}
