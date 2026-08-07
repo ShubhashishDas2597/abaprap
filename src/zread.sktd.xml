@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_SKTD" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <KTD_OBJECT>
+    <NAME>ZREAD</NAME>
+    <TYPE>GENERAL_TEXT</TYPE>
+    <SOURCE_CONTENT_TYPE>02</SOURCE_CONTENT_TYPE>
+    <REF_OBJ_TYPE>DEVC</REF_OBJ_TYPE>
+    <REF_OBJ_NAME>ZSDM</REF_OBJ_NAME>
+    <ABAP_LANGUAGE_VERSION>X</ABAP_LANGUAGE_VERSION>
+    <CONTENT>
+     <item>
+      <NAME>ZREAD</NAME>
+      <LANGU>E</LANGU>
+      <COMPONENT_UUID>eiQ3AHP5H+GkxnobXJlWTA==</COMPONENT_UUID>
+      <SOURCE_CONTENT>TWFuYWdlZCB3b3JraW5nCgpTTTMwIGFwcGxpY2F0aW9uIHdhcyB3b3JraW5nIGxpa2UgY2xpa2lu
+ZyBvbiB0cnZlbCBhbmQgb3BlbiBpdCBzZWNvbmQgcGFnZSB0byBlZGl0LiBpZiBkcmFmdCBzY2Vu
+YXJpb3MgaXMgcmVtb3ZlZCB0aGVuIGl0IHdpbGwgd29yay4gd2l0aCBkcmFmdCBub3Qgd29ya2lu
+ZyBhbmQgaSBkb250IGtub3cgd2h5LgoKVW5tYW5hZ2VkIFNjZW5hcmlvIGZ1bGwgbm90IHdvcmtp
+bmcsCg==</SOURCE_CONTENT>
+     </item>
+    </CONTENT>
+   </KTD_OBJECT>
+  </asx:values>
+ </asx:abap>
+</abapGit>
