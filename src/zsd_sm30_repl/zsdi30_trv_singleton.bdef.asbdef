@@ -1,27 +1,27 @@
 managed implementation in class zbp_sdi30_trv_singleton unique;
 strict ( 2 );
-with draft;
+//with draft;
 
 define behavior for zsdi30_trv_singleton //alias <alias_name>
 with unmanaged save
-draft table zsd30_dft_trv_s1
+//draft table zsd30_dft_trv_s1
 //persistent table t002
 lock master
-total etag maxlastchangedat
+//total etag maxlastchangedat
 authorization master ( instance )
 //etag master <field_name>
 {
-  //  create ( authorization : global );
-  //  update;
-  //  delete;
+  create ( authorization : global );
+  update;
+  delete;
   field ( readonly ) SingletonEntry;
-  association _trv { create; with draft; }
-
-  draft action Edit;
-  draft action Activate optimized;
-  draft action Discard;
-  draft action Resume;
-  draft determine action Prepare;
+  association _trv { create; } // with draft; }
+  //
+  //  draft action Edit;
+  //  draft action Activate optimized;
+  //  draft action Discard;
+  //  draft action Resume;
+  //  draft determine action Prepare;
 
 
 }
@@ -30,14 +30,14 @@ define behavior for ZSDi30_TRAVEL //alias <alias_name>
 persistent table zsd_travell
 lock dependent by _strv
 authorization dependent by _strv
-draft table zsd30_dft_trv
+//draft table zsd30_dft_trv
 etag master LocalLastChangedAt
 {
   update;
   delete;
   field ( readonly ) TravelId; //, AgencyId, CustomerId;
   field ( readonly ) SingletonEntry;
-  association _strv { with draft; }
+  association _strv; // { with draft; }
 
   mapping for zsd_travell
     {

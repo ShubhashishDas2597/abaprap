@@ -18,12 +18,12 @@ define root view entity zsdc30_trv_singleton
 {
 
       @UI.facet: [
-      //      {
-      //      id: 'Single',
-      //          position: 10,
-      //          label: 'Single',
-      //          type: #IDENTIFICATION_REFERENCE
-      //      },
+            {
+            id: 'Single',
+                position: 10,
+                label: 'Single',
+                type: #IDENTIFICATION_REFERENCE
+            },
         {
           id: 'Travel',
           position: 20,
@@ -33,6 +33,7 @@ define root view entity zsdc30_trv_singleton
       }]
 
       @UI.selectionField: [{position: 10 }]
+//      @UI.identification: [{position: 10 }]
       @UI.lineItem: [{ position: 10 }]
   key SingletonEntry,
       /* Associations */
