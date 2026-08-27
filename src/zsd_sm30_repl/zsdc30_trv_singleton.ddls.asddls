@@ -18,12 +18,12 @@ define root view entity zsdc30_trv_singleton
 {
 
       @UI.facet: [
-            {
-            id: 'Single',
-                position: 10,
-                label: 'Single',
-                type: #IDENTIFICATION_REFERENCE
-            },
+//            {
+//            id: 'Single',
+//                position: 10,
+//                label: 'Single',
+//                type: #IDENTIFICATION_REFERENCE
+//            },
         {
           id: 'Travel',
           position: 20,

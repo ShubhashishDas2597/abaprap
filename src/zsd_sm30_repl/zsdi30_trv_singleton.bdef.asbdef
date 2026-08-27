@@ -23,7 +23,6 @@ authorization master ( instance )
   //  draft action Resume;
   //  draft determine action Prepare;
 
-
 }
 
 define behavior for ZSDi30_TRAVEL //alias <alias_name>
@@ -38,6 +37,8 @@ etag master LocalLastChangedAt
   field ( readonly ) TravelId; //, AgencyId, CustomerId;
   field ( readonly ) SingletonEntry;
   association _strv; // { with draft; }
+
+  validation checkCust on save { create; update; field CustomerId; }
 
   mapping for zsd_travell
     {

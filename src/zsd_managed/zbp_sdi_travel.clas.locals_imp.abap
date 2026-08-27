@@ -1,3 +1,18 @@
+CLASS lsc_zsdi_travel DEFINITION INHERITING FROM cl_abap_behavior_saver.
+
+  PROTECTED SECTION.
+
+    METHODS save_modified REDEFINITION.
+
+ENDCLASS.
+
+CLASS lsc_zsdi_travel IMPLEMENTATION.
+
+  METHOD save_modified.
+  ENDMETHOD.
+
+ENDCLASS.
+
 CLASS lhc_travel DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 

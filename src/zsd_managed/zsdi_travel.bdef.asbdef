@@ -1,4 +1,4 @@
-managed; //implementation in class zbp_sdi_travel unique;
+managed with additional save implementation in class zbp_sdi_travel unique; //implementation in class zbp_sdi_travel unique;
 strict ( 2 );
 
 with draft;
