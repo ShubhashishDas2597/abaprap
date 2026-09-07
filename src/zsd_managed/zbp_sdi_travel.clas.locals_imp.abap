@@ -426,15 +426,6 @@ CLASS lhc_travel IMPLEMENTATION.
     ENDLOOP.
 
 
-
-
-*    final_price = REDUCE #(
-*                            INIT s = 0
-*                            FOR ls IN lt_trv NEXT
-*                            FOR ls1 IN lt_trvbook
-*                            NEXT s = s + ls-bookingfee + ls1-flightprice
-*                             ).
-
   ENDMETHOD.
 
 ENDCLASS.

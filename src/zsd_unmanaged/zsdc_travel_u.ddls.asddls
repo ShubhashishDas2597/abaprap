@@ -2,6 +2,7 @@
 @EndUserText.label: 'Travel Projection View'
 @Metadata.ignorePropagatedAnnotations: true
 @Metadata.allowExtensions: true
+@Search.searchable: true
 
 define root view entity zsdc_travel_u
   provider contract transactional_query
@@ -12,6 +13,8 @@ define root view entity zsdc_travel_u
 
       @UI.identification: [{ position: 10 }]
       @UI.lineItem: [{ position: 10 }]
+      @UI.selectionField: [{position: 10 }]
+      @Search.defaultSearchElement: true
   key TravelId,
       @UI.lineItem: [{ position: 20 }]
       @UI.identification: [{ position: 20 }]
