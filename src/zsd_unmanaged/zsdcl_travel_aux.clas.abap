@@ -13,6 +13,8 @@ CLASS zsdcl_travel_aux DEFINITION
     TYPES: tt_mapped_ad   TYPE RESPONSE FOR MAPPED LATE zsdi_travel_u,
            tt_reported_ad TYPE RESPONSE FOR REPORTED LATE zsdi_travel_u.
 
+    TYPES: tt_ent_upd      TYPE TABLE FOR UPDATE zsdi_travel_u\\travel.
+
     CLASS-METHODS: get_instance RETURNING VALUE(ro_instance) TYPE REF TO zsdcl_travel_aux.
     METHODS: create
       IMPORTING
@@ -31,10 +33,20 @@ CLASS zsdcl_travel_aux DEFINITION
           mapped   TYPE tt_mapped_ad
           reported TYPE tt_reported_ad.
 
+    METHODS:
+      update
+        IMPORTING
+          entities TYPE tt_ent_upd
+        CHANGING
+          mapped   TYPE tt_mapped_cr
+          failed   TYPE tt_failed_cr
+          reported TYPE tt_reported_cr.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
     CLASS-DATA: go_instance TYPE REF TO zsdcl_travel_aux.
     CLASS-DATA: gt_travel TYPE TABLE OF zsd_travell.
+    CLASS-DATA: gt_travel_upd TYPE TABLE OF zsd_travell.
 ENDCLASS.
 
 
@@ -49,19 +61,40 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
 
     IF lt_ent IS NOT INITIAL..
       gt_travel = CORRESPONDING #( lt_ent MAPPING FROM ENTITY ).
-      LOOP AT lt_ent ASSIGNING FIELD-SYMBOL(<fs_ent>)..
-        mapped-travel = VALUE #( ( %cid = <fs_ent>-%cid travelid = <fs_ent>-travelid ) ).
-      ENDLOOP..
+*      LOOP AT lt_ent ASSIGNING FIELD-SYMBOL(<fs_ent>)..
+*        mapped-travel = VALUE #( ( %cid = <fs_ent>-%cid travelid = <fs_ent>-travelid ) ).
+*      ENDLOOP..
+
+**Another way of writing loop
+
+      mapped = VALUE #(
+        travel = VALUE #(
+                          FOR <fs_ent> IN lt_ent
+                          (
+                          %cid     = <fs_ent>-%cid
+                          travelid = <fs_ent>-travelid
+                          )
+                          )
+      ).
+
     ENDIF.
 
   ENDMETHOD.
 
   METHOD savedata.
-    MODIFY zsd_travell FROM TABLE @gt_travel.
+    IF gt_travel[] IS NOT INITIAL.
+      MODIFY zsd_travell FROM TABLE @gt_travel.
+    ENDIF.
+    IF gt_travel_upd[] IS NOT INITIAL..
+      MODIFY zsd_travell FROM TABLE @gt_travel_upd.
+    ENDIF.
+
   ENDMETHOD.
 
   METHOD adjust_nr.
     DATA: lt_mappedtrv TYPE TABLE FOR MAPPED LATE zsdi_travel_u\\travel .
+
+    CHECK gt_travel[] IS NOT INITIAL.
     TRY.
         cl_numberrange_runtime=>number_get(
           EXPORTING
@@ -89,6 +122,63 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
     ENDLOOP.
 
     mapped-travel = lt_mappedtrv.
+
+  ENDMETHOD.
+
+  METHOD update.
+
+    DATA(lt_ent) = entities.
+
+    SELECT * FROM zsd_travell
+    FOR ALL ENTRIES IN @lt_ent
+    WHERE travel_id = @lt_ent-%key-travelid
+    INTO TABLE @DATA(lt_trv).
+
+    LOOP AT lt_ent ASSIGNING FIELD-SYMBOL(<fs_ent>).
+
+      "fill gt_travel will updated values to get it saved thru save method
+      APPEND VALUE #( travel_id = <fs_ent>-%key-travelid
+
+                      agency_id = COND #( WHEN <fs_ent>-%control-agencyid = if_abap_behv=>mk-off
+                                          THEN lt_trv[ travel_id = <fs_ent>-travelid ]-agency_id
+                                          ELSE <fs_ent>-agencyid )
+
+                      customer_id = COND #( WHEN <fs_ent>-%control-customerid = if_abap_behv=>mk-off
+                                          THEN lt_trv[ travel_id = <fs_ent>-travelid ]-customer_id
+                                          ELSE <fs_ent>-customerid )
+
+                      begin_date = COND #( WHEN <fs_ent>-%control-begindate = if_abap_behv=>mk-off
+                                          THEN lt_trv[ travel_id = <fs_ent>-travelid ]-begin_date
+                                          ELSE <fs_ent>-begindate )
+
+                      end_date = COND #( WHEN <fs_ent>-%control-enddate = if_abap_behv=>mk-off
+                                          THEN lt_trv[ travel_id = <fs_ent>-travelid ]-end_date
+                                          ELSE <fs_ent>-enddate )
+
+                      booking_fee = COND #( WHEN <fs_ent>-%control-bookingfee = if_abap_behv=>mk-off
+                                          THEN lt_trv[ travel_id = <fs_ent>-travelid ]-booking_fee
+                                          ELSE <fs_ent>-bookingfee )
+
+                      total_price = COND #( WHEN <fs_ent>-%control-totalprice = if_abap_behv=>mk-off
+                                          THEN lt_trv[ travel_id = <fs_ent>-travelid ]-total_price
+                                          ELSE <fs_ent>-totalprice )
+
+                      currency_code = COND #( WHEN <fs_ent>-%control-currencycode = if_abap_behv=>mk-off
+                                          THEN lt_trv[ travel_id = <fs_ent>-travelid ]-currency_code
+                                          ELSE <fs_ent>-currencycode )
+                      description = COND #( WHEN <fs_ent>-%control-description = if_abap_behv=>mk-off
+                                          THEN lt_trv[ travel_id = <fs_ent>-travelid ]-description
+                                          ELSE <fs_ent>-description )
+
+                      overall_status = COND #( WHEN <fs_ent>-%control-overallstatus = if_abap_behv=>mk-off
+                                          THEN lt_trv[ travel_id = <fs_ent>-travelid ]-overall_status
+                                          ELSE <fs_ent>-overallstatus )
+
+                      ) TO gt_travel_upd.
+
+      "APPEND VALUE #( %cid = <fs_ent>-%cid_ref %key-travelid = <fs_ent>-%key-travelid ) TO mapped-travel.
+
+    ENDLOOP.
 
   ENDMETHOD.
 

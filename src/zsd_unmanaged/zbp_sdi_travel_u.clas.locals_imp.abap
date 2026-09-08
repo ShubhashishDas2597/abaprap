@@ -22,11 +22,11 @@ CLASS lhc_zsdi_travel_u DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS lock FOR LOCK
       IMPORTING keys FOR LOCK travel.
 
-    METHODS rba_Book FOR READ
-      IMPORTING keys_rba FOR READ travel\_Book FULL result_requested RESULT result LINK association_links.
+    METHODS rba_book FOR READ
+      IMPORTING keys_rba FOR READ travel\_book FULL result_requested RESULT result LINK association_links.
 
-    METHODS cba_Book FOR MODIFY
-      IMPORTING entities_cba FOR CREATE travel\_Book.
+    METHODS cba_book FOR MODIFY
+      IMPORTING entities_cba FOR CREATE travel\_book.
 
 ENDCLASS.
 
@@ -52,21 +52,39 @@ CLASS lhc_zsdi_travel_u IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD update.
+
+    zsdcl_travel_aux=>get_instance(  )->update(
+      EXPORTING
+        entities = entities
+      CHANGING
+        mapped   = mapped
+        failed   = failed
+        reported = reported
+    ).
+
   ENDMETHOD.
 
   METHOD delete.
   ENDMETHOD.
 
   METHOD read.
+
+    SELECT * FROM zsd_travell
+    FOR ALL ENTRIES IN @keys
+    WHERE travel_id = @keys-travelid
+    INTO TABLE @DATA(lt_read) .
+
+    result = CORRESPONDING #( lt_read MAPPING TO ENTITY  ).
+
   ENDMETHOD.
 
   METHOD lock.
   ENDMETHOD.
 
-  METHOD rba_Book.
+  METHOD rba_book.
   ENDMETHOD.
 
-  METHOD cba_Book.
+  METHOD cba_book.
   ENDMETHOD.
 
 ENDCLASS.
@@ -83,8 +101,8 @@ CLASS lhc_zsdi_book_u DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS read FOR READ
       IMPORTING keys FOR READ zsdi_book_u RESULT result.
 
-    METHODS rba_Travel FOR READ
-      IMPORTING keys_rba FOR READ zsdi_book_u\_Travel FULL result_requested RESULT result LINK association_links.
+    METHODS rba_travel FOR READ
+      IMPORTING keys_rba FOR READ zsdi_book_u\_travel FULL result_requested RESULT result LINK association_links.
 
 ENDCLASS.
 
@@ -99,12 +117,12 @@ CLASS lhc_zsdi_book_u IMPLEMENTATION.
   METHOD read.
   ENDMETHOD.
 
-  METHOD rba_Travel.
+  METHOD rba_travel.
   ENDMETHOD.
 
 ENDCLASS.
 
-CLASS lsc_ZSDI_TRAVEL_U DEFINITION INHERITING FROM cl_abap_behavior_saver.
+CLASS lsc_zsdi_travel_u DEFINITION INHERITING FROM cl_abap_behavior_saver.
   PROTECTED SECTION.
 
     METHODS finalize REDEFINITION.
@@ -121,7 +139,7 @@ CLASS lsc_ZSDI_TRAVEL_U DEFINITION INHERITING FROM cl_abap_behavior_saver.
 
 ENDCLASS.
 
-CLASS lsc_ZSDI_TRAVEL_U IMPLEMENTATION.
+CLASS lsc_zsdi_travel_u IMPLEMENTATION.
 
   METHOD finalize.
   ENDMETHOD.
