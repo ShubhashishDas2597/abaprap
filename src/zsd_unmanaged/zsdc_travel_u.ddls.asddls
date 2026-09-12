@@ -9,7 +9,10 @@ define root view entity zsdc_travel_u
   as projection on zsdi_travel_u
 {
 
-      @UI.facet: [{ id: 'trv', position: 10, label: 'Travel', type: #IDENTIFICATION_REFERENCE }]
+      @UI.facet: [
+                  { id: 'trv', position: 10, label: 'Travel', type: #IDENTIFICATION_REFERENCE },
+                  { id: 'book',position: 20, label: 'Booking', type: #LINEITEM_REFERENCE ,targetElement: '_book' }
+                  ]
 
       @UI.identification: [{ position: 10 }]
       @UI.lineItem: [{ position: 10 }]

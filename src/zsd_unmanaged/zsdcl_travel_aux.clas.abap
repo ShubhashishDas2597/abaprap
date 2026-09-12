@@ -13,7 +13,9 @@ CLASS zsdcl_travel_aux DEFINITION
     TYPES: tt_mapped_ad   TYPE RESPONSE FOR MAPPED LATE zsdi_travel_u,
            tt_reported_ad TYPE RESPONSE FOR REPORTED LATE zsdi_travel_u.
 
-    TYPES: tt_ent_upd      TYPE TABLE FOR UPDATE zsdi_travel_u\\travel.
+    TYPES: tt_ent_upd     TYPE TABLE FOR UPDATE zsdi_travel_u\\travel.
+
+    TYPES: tt_keys TYPE TABLE FOR DELETE zsdi_travel_u\\travel.
 
     CLASS-METHODS: get_instance RETURNING VALUE(ro_instance) TYPE REF TO zsdcl_travel_aux.
     METHODS: create
@@ -42,18 +44,23 @@ CLASS zsdcl_travel_aux DEFINITION
           failed   TYPE tt_failed_cr
           reported TYPE tt_reported_cr.
 
+    METHODS: delete
+      IMPORTING
+        keys TYPE tt_keys.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
     CLASS-DATA: go_instance TYPE REF TO zsdcl_travel_aux.
     CLASS-DATA: gt_travel TYPE TABLE OF zsd_travell.
     CLASS-DATA: gt_travel_upd TYPE TABLE OF zsd_travell.
+    CLASS-DATA: gt_travel_del TYPE TABLE OF zsd_travell.
 ENDCLASS.
 
 
 
 CLASS zsdcl_travel_aux IMPLEMENTATION.
   METHOD get_instance.
-    ro_instance = COND #( WHEN go_instance IS BOUND THEN go_instance ELSE NEW #(  ) ).
+    ro_instance = go_instance = COND #( WHEN go_instance IS BOUND THEN go_instance ELSE NEW #(  ) ).
   ENDMETHOD.
 
   METHOD create.
@@ -88,7 +95,9 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
     IF gt_travel_upd[] IS NOT INITIAL..
       MODIFY zsd_travell FROM TABLE @gt_travel_upd.
     ENDIF.
-
+    IF gt_travel_del[] IS NOT INITIAL..
+      DELETE zsd_travell FROM TABLE @gt_travel_del.
+    ENDIF.
   ENDMETHOD.
 
   METHOD adjust_nr.
@@ -176,9 +185,19 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
 
                       ) TO gt_travel_upd.
 
-      "APPEND VALUE #( %cid = <fs_ent>-%cid_ref %key-travelid = <fs_ent>-%key-travelid ) TO mapped-travel.
+      APPEND VALUE #( %key-travelid = <fs_ent>-%key-travelid ) TO mapped-travel.
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD delete.
+
+    DATA(lt_keys) = keys.
+
+    gt_travel_del = VALUE #( FOR ls IN lt_keys (
+                             travel_id = ls-%key-travelid
+                             ) ).
 
   ENDMETHOD.
 

@@ -57,7 +57,7 @@ CLASS lhc_travel IMPLEMENTATION.
     DATA(lt_ent) = entities.
 
     IF lt_ent[] IS NOT INITIAL.
-      "DELETE lt_ent WHERE TravelId IS NOT INITIAL. "draft sceanrio me key field alreay avl hoti hai, jb key hai to usnme nubering nhi dena hai.
+      DELETE lt_ent WHERE travelid IS NOT INITIAL. "draft sceanrio me key field alreay avl hoti hai, jb key hai to usnme nubering nhi dena hai.
       TRY.
           cl_numberrange_runtime=>number_get(
             EXPORTING
@@ -85,6 +85,7 @@ CLASS lhc_travel IMPLEMENTATION.
         LOOP AT lt_ent ASSIGNING FIELD-SYMBOL(<fs>).
 
           ls-%cid = <fs>-%cid.
+          ls-%is_draft = <fs>-%is_draft.
           ls-travelid = lv_num.
           APPEND ls TO mapped-travel.
 
@@ -133,6 +134,7 @@ CLASS lhc_travel IMPLEMENTATION.
       LOOP AT <fs_ent>-%target ASSIGNING FIELD-SYMBOL(<fs_book>).
 
         APPEND VALUE #( %cid      = <fs_book>-%cid
+                        %is_draft = <fs_book>-%is_draft
                         travelid  = <fs_ent>-travelid
                         bookingid = lv_new_bkid ) TO mapped-book.
         lv_new_bkid =  lv_new_bkid + 1.

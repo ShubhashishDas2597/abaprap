@@ -1,5 +1,6 @@
 projection;
 strict ( 2 );
+use draft;
 
 define behavior for zsdc_travel_u //alias <alias_name>
 {
@@ -7,7 +8,13 @@ define behavior for zsdc_travel_u //alias <alias_name>
   use update;
   use delete;
 
-  use association _book { create; }
+  use association _book { create; with draft; }
+
+  use action Edit;
+  use action Resume;
+  use action Activate;
+  use action Discard;
+  use action Prepare;
 }
 
 define behavior for zsdc_book_u //alias <alias_name>
@@ -15,5 +22,5 @@ define behavior for zsdc_book_u //alias <alias_name>
   use update;
   use delete;
 
-  use association _travel;
+  use association _travel { with draft; }
 }

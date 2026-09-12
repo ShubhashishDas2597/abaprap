@@ -19,7 +19,7 @@ define view entity zsdc_book
       CurrencyCode,
       BookingStatus,
       LastChangedAt,
-      /* Associations */
+      /* Associations  uyb */ 
       _bookstatus,
       _booksupp : redirected to composition child zsdc_booksuppl,
       _carrier,

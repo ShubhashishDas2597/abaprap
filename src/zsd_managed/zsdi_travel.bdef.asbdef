@@ -8,7 +8,7 @@ implementation in class zbp_sdi_travel unique
 persistent table zsd_travell
 lock master
 total etag LastChangedAt
-draft table zsd_travell_d
+draft table zsd_travell_d1
 authorization master ( instance )
 etag master LocalLastChangedAt
 early numbering
@@ -65,7 +65,7 @@ define behavior for zsdi_book alias book
 implementation in class zbp_sdi_booking unique
 persistent table zsd_bookk
 lock dependent by _travel
-draft table zsd_bookk_d
+draft table zsd_bookk_d1
 authorization dependent by _travel
 etag master LastChangedAt
 early numbering
