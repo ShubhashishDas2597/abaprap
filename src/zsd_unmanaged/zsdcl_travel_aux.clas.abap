@@ -8,7 +8,9 @@ CLASS zsdcl_travel_aux DEFINITION
     TYPES: tt_ent_cr      TYPE TABLE FOR CREATE zsdi_travel_u\\travel,
            tt_mapped_cr   TYPE RESPONSE FOR MAPPED EARLY zsdi_travel_u,
            tt_failed_cr   TYPE RESPONSE FOR FAILED EARLY zsdi_travel_u,
-           tt_reported_cr TYPE RESPONSE FOR REPORTED EARLY zsdi_travel_u.
+           tt_reported_cr TYPE RESPONSE FOR REPORTED EARLY zsdi_travel_u,
+
+           tt_ent_cba     TYPE TABLE FOR CREATE zsdi_travel_u\\travel\_book.
 
     TYPES: tt_mapped_ad   TYPE RESPONSE FOR MAPPED LATE zsdi_travel_u,
            tt_reported_ad TYPE RESPONSE FOR REPORTED LATE zsdi_travel_u.
@@ -25,6 +27,14 @@ CLASS zsdcl_travel_aux DEFINITION
         mapped   TYPE tt_mapped_cr
         failed   TYPE tt_failed_cr
         reported TYPE tt_reported_cr.
+
+    METHODS: create_cba
+      IMPORTING
+        entities_cba TYPE tt_ent_cba
+      CHANGING
+        mapped       TYPE tt_mapped_cr
+        failed       TYPE tt_failed_cr
+        reported     TYPE tt_reported_cr.
 
 
     METHODS: savedata.
@@ -52,6 +62,7 @@ CLASS zsdcl_travel_aux DEFINITION
   PRIVATE SECTION.
     CLASS-DATA: go_instance TYPE REF TO zsdcl_travel_aux.
     CLASS-DATA: gt_travel TYPE TABLE OF zsd_travell.
+    CLASS-DATA: gt_book TYPE TABLE OF zsd_bookk.
     CLASS-DATA: gt_travel_upd TYPE TABLE OF zsd_travell.
     CLASS-DATA: gt_travel_del TYPE TABLE OF zsd_travell.
 ENDCLASS.
@@ -78,8 +89,9 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
         travel = VALUE #(
                           FOR <fs_ent> IN lt_ent
                           (
-                          %cid     = <fs_ent>-%cid
-                          travelid = <fs_ent>-travelid
+                          %cid      = <fs_ent>-%cid
+                          %is_draft = <fs_ent>-%is_draft
+                          travelid  = <fs_ent>-travelid
                           )
                           )
       ).
@@ -92,6 +104,9 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
     IF gt_travel[] IS NOT INITIAL.
       MODIFY zsd_travell FROM TABLE @gt_travel.
     ENDIF.
+    IF gt_book[] IS NOT INITIAL.
+      MODIFY zsd_bookk FROM TABLE @gt_book.
+    ENDIF.
     IF gt_travel_upd[] IS NOT INITIAL..
       MODIFY zsd_travell FROM TABLE @gt_travel_upd.
     ENDIF.
@@ -101,36 +116,70 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD adjust_nr.
-    DATA: lt_mappedtrv TYPE TABLE FOR MAPPED LATE zsdi_travel_u\\travel .
+    DATA: lt_mappedtrv  TYPE TABLE FOR MAPPED LATE zsdi_travel_u\\travel,
+          lt_mappedbook TYPE TABLE FOR MAPPED LATE zsdi_book_u.
 
-    CHECK gt_travel[] IS NOT INITIAL.
-    TRY.
-        cl_numberrange_runtime=>number_get(
-          EXPORTING
-            nr_range_nr       = '01'
-            object            = '/DMO/TRAVL'
-            quantity          = CONV #( lines( gt_travel ) )
-          IMPORTING
-            number            = DATA(lv_key)
-            returncode        = DATA(lv_return_code)
-            returned_quantity = DATA(lv_returned_quantity)
-        ).
-      CATCH cx_number_ranges INTO DATA(lx_number_ranges).
-        ASSERT 1 = 2.
-    ENDTRY.
-    ASSERT lv_returned_quantity = lines( gt_travel ).
+    DATA: lv_bookid TYPE i VALUE 1.
 
-    LOOP AT gt_travel ASSIGNING FIELD-SYMBOL(<fs_trv>).
+    IF gt_travel[] IS NOT INITIAL.
+      TRY.
+          cl_numberrange_runtime=>number_get(
+            EXPORTING
+              nr_range_nr       = '01'
+              object            = '/DMO/TRAVL'
+              quantity          = CONV #( lines( gt_travel ) )
+            IMPORTING
+              number            = DATA(lv_key)
+              returncode        = DATA(lv_return_code)
+              returned_quantity = DATA(lv_returned_quantity)
+          ).
+        CATCH cx_number_ranges INTO DATA(lx_number_ranges).
+          ASSERT 1 = 2.
+      ENDTRY.
+      ASSERT lv_returned_quantity = lines( gt_travel ).
 
-      DATA(lv_exist) = CONV i( lv_key ) - CONV i( lv_returned_quantity ).
-      DATA(l_id) = ( lv_exist ) + 1.
+      LOOP AT gt_travel ASSIGNING FIELD-SYMBOL(<fs_trv>).
+
+        DATA(lv_exist) = CONV i( lv_key ) - CONV i( lv_returned_quantity ).
+        DATA(l_id) = ( lv_exist ) + 1.
 *        1 2 3                   4000            4003-3 = 4000
-      <fs_trv>-travel_id = l_id.
+        <fs_trv>-travel_id = l_id.
 
-      APPEND VALUE #( travelid = l_id ) TO lt_mappedtrv.
-    ENDLOOP.
+        APPEND VALUE #( travelid = l_id ) TO lt_mappedtrv.
 
-    mapped-travel = lt_mappedtrv.
+      ENDLOOP.
+
+    ENDIF.
+
+    IF gt_book[] IS NOT INITIAL.
+      LOOP AT gt_book ASSIGNING FIELD-SYMBOL(<fs_book>).
+
+        IF <fs_book>-travel_id IS INITIAL.
+          <fs_book>-travel_id  = l_id.
+        ENDIF.
+        <fs_book>-booking_id = lv_bookid.
+
+        APPEND VALUE #( travelid  = <fs_book>-travel_id
+                        bookingid = <fs_book>-booking_id ) TO lt_mappedbook.
+        lv_bookid += 1.
+
+      ENDLOOP.
+
+    ENDIF.
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    "filling of mapped
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    IF lt_mappedtrv[] IS NOT INITIAL.
+
+      mapped-travel = lt_mappedtrv.
+
+    ENDIF.
+    IF lt_mappedbook[] IS NOT INITIAL.
+
+      mapped-zsdi_book_u = lt_mappedbook.
+
+    ENDIF.
 
   ENDMETHOD.
 
@@ -198,6 +247,48 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
     gt_travel_del = VALUE #( FOR ls IN lt_keys (
                              travel_id = ls-%key-travelid
                              ) ).
+
+  ENDMETHOD.
+
+  METHOD create_cba.
+
+    DATA(lt_ent) = entities_cba.
+
+    IF lt_ent[] IS NOT INITIAL.
+
+      LOOP AT lt_ent ASSIGNING FIELD-SYMBOL(<fs_cba>).
+
+        "gt_book = CORRESPONDING #( <fs_cba>-%target MAPPING FROM ENTITY ).
+        LOOP AT <fs_cba>-%target ASSIGNING FIELD-SYMBOL(<fs_res>).
+          APPEND VALUE #( travel_id      = <fs_cba>-travelid
+                          booking_id     = <fs_res>-bookingid
+                          booking_date   = <fs_res>-bookingdate
+                          customer_id    = <fs_res>-customerid
+                          carrier_id     = <fs_res>-carrierid
+                          connection_id  = <fs_res>-connectionid
+                          flight_date    = <fs_res>-flightdate
+                          flight_price   = <fs_res>-flightprice
+                          currency_code  = <fs_res>-currencycode
+                          booking_status = <fs_res>-bookingdate
+          ) TO gt_book.
+
+*          mapped = VALUE #(
+*            zsdi_book_u = VALUE #(
+*                                   %cid      = <fs_res>-%cid
+*                                   %is_draft = <fs_res>-%is_draft
+*                                   %key      = <fs_res>-%key
+*                                   )
+*                          ).
+
+          APPEND VALUE #( %cid      = <fs_res>-%cid
+                          %is_draft = <fs_res>-%is_draft
+                          %key      = <fs_res>-%key )
+                 TO mapped-zsdi_book_u.
+
+        ENDLOOP.
+      ENDLOOP.
+
+    ENDIF.
 
   ENDMETHOD.
 

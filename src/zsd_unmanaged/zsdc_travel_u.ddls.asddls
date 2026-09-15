@@ -4,14 +4,27 @@
 @Metadata.allowExtensions: true
 @Search.searchable: true
 
+@UI: {
+    headerInfo: {
+        typeName: 'Travel',
+        typeNamePlural: 'Travels',
+        title: {
+            type: #STANDARD, value: 'TravelId'
+        },
+        description: {
+            value: 'CustomerId'
+        }
+    } }
+
 define root view entity zsdc_travel_u
   provider contract transactional_query
   as projection on zsdi_travel_u
 {
 
       @UI.facet: [
-                  { id: 'trv', position: 10, label: 'Travel', type: #IDENTIFICATION_REFERENCE },
-                  { id: 'book',position: 20, label: 'Booking', type: #LINEITEM_REFERENCE ,targetElement: '_book' }
+                  { position: 10, label: 'Travel', type: #IDENTIFICATION_REFERENCE },
+                  { position: 20, label: 'Booking', type: #LINEITEM_REFERENCE ,targetElement: '_book' ,
+                    purpose: #STANDARD  }
                   ]
 
       @UI.identification: [{ position: 10 }]

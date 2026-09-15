@@ -28,7 +28,7 @@ CLASS lhc_zsdi_travel_u DEFINITION INHERITING FROM cl_abap_behavior_handler.
     METHODS cba_book FOR MODIFY
       IMPORTING entities_cba FOR CREATE travel\_book.
     METHODS valcust FOR VALIDATE ON SAVE
-      keys FOR travel~valcust.
+       keys FOR travel~valcust.
 
 ENDCLASS.
 
@@ -91,6 +91,16 @@ CLASS lhc_zsdi_travel_u IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD cba_book.
+    IF entities_cba IS NOT INITIAL.
+      zsdcl_travel_aux=>get_instance(  )->create_cba(
+        EXPORTING
+          entities_cba = entities_cba
+        CHANGING
+          mapped   = mapped
+          failed   = failed
+          reported = reported
+      ).
+    ENDIF.
   ENDMETHOD.
 
   METHOD valcust.
