@@ -22,9 +22,11 @@ etag master LocalLastChangedAt
   draft determine action Prepare
   {
     validation valcust;
+    validation valdate;
   }
 
   validation valcust on save { create; field CustomerId; }
+  validation valdate on save { create; field BeginDate; }
 
   mapping for zsd_travell
     {

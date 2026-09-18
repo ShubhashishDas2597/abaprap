@@ -5,6 +5,13 @@ CLASS zsdcl_travel_aux DEFINITION
 
   PUBLIC SECTION.
 
+    TYPES: BEGIN OF ty_rep_msg,
+             travelid TYPE zsd_travell-travel_id,
+             msg      TYPE string,
+           END OF ty_rep_msg.
+
+    DATA: gt_chk_msg TYPE TABLE OF ty_rep_msg.
+
     TYPES: tt_ent_cr      TYPE TABLE FOR CREATE zsdi_travel_u\\travel,
            tt_mapped_cr   TYPE RESPONSE FOR MAPPED EARLY zsdi_travel_u,
            tt_failed_cr   TYPE RESPONSE FOR FAILED EARLY zsdi_travel_u,
@@ -18,6 +25,10 @@ CLASS zsdcl_travel_aux DEFINITION
     TYPES: tt_ent_upd     TYPE TABLE FOR UPDATE zsdi_travel_u\\travel.
 
     TYPES: tt_keys TYPE TABLE FOR DELETE zsdi_travel_u\\travel.
+
+*    TYPES: tt_reported_b4 TYPE RESPONSE FOR REPORTED LATE zsdi_travel_u,
+*           tt_failed_b4   TYPE RESPONSE FOR FAILED LATE zsdi_travel_u.
+
 
     CLASS-METHODS: get_instance RETURNING VALUE(ro_instance) TYPE REF TO zsdcl_travel_aux.
     METHODS: create
@@ -58,6 +69,9 @@ CLASS zsdcl_travel_aux DEFINITION
       IMPORTING
         keys TYPE tt_keys.
 
+
+    METHODS: prep_check_save_msg.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
     CLASS-DATA: go_instance TYPE REF TO zsdcl_travel_aux.
@@ -95,6 +109,48 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
                           )
                           )
       ).
+
+    ENDIF.
+
+  ENDMETHOD.
+
+  METHOD create_cba.
+
+    DATA(lt_ent) = entities_cba.
+
+    IF lt_ent[] IS NOT INITIAL.
+
+      LOOP AT lt_ent ASSIGNING FIELD-SYMBOL(<fs_cba>).
+
+        "gt_book = CORRESPONDING #( <fs_cba>-%target MAPPING FROM ENTITY ).
+        LOOP AT <fs_cba>-%target ASSIGNING FIELD-SYMBOL(<fs_res>).
+          APPEND VALUE #( travel_id      = <fs_cba>-travelid
+                          booking_id     = <fs_res>-bookingid
+                          booking_date   = <fs_res>-bookingdate
+                          customer_id    = <fs_res>-customerid
+                          carrier_id     = <fs_res>-carrierid
+                          connection_id  = <fs_res>-connectionid
+                          flight_date    = <fs_res>-flightdate
+                          flight_price   = <fs_res>-flightprice
+                          currency_code  = <fs_res>-currencycode
+                          booking_status = <fs_res>-bookingdate
+          ) TO gt_book.
+
+*          mapped = VALUE #(
+*            zsdi_book_u = VALUE #(
+*                                   %cid      = <fs_res>-%cid
+*                                   %is_draft = <fs_res>-%is_draft
+*                                   %key      = <fs_res>-%key
+*                                   )
+*                          ).
+
+          APPEND VALUE #( %cid      = <fs_res>-%cid
+                          %is_draft = <fs_res>-%is_draft
+                          %key      = <fs_res>-%key )
+                 TO mapped-zsdi_book_u.
+
+        ENDLOOP.
+      ENDLOOP.
 
     ENDIF.
 
@@ -234,7 +290,7 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
 
                       ) TO gt_travel_upd.
 
-      APPEND VALUE #( %key-travelid = <fs_ent>-%key-travelid ) TO mapped-travel.
+      "APPEND VALUE #( %key-travelid = <fs_ent>-%key-travelid ) TO mapped-travel.
 
     ENDLOOP.
 
@@ -250,45 +306,31 @@ CLASS zsdcl_travel_aux IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD create_cba.
+  METHOD prep_check_save_msg.
 
-    DATA(lt_ent) = entities_cba.
+    " DATA(lt_trv) = COND #( WHEN gt_travel IS NOT INITIAL THEN gt_travel ELSE gt_travel_upd ).
 
-    IF lt_ent[] IS NOT INITIAL.
+    LOOP AT gt_travel ASSIGNING FIELD-SYMBOL(<fs_trv>).
 
-      LOOP AT lt_ent ASSIGNING FIELD-SYMBOL(<fs_cba>).
+      IF <fs_trv>-begin_date < cl_abap_context_info=>get_system_date( ).
 
-        "gt_book = CORRESPONDING #( <fs_cba>-%target MAPPING FROM ENTITY ).
-        LOOP AT <fs_cba>-%target ASSIGNING FIELD-SYMBOL(<fs_res>).
-          APPEND VALUE #( travel_id      = <fs_cba>-travelid
-                          booking_id     = <fs_res>-bookingid
-                          booking_date   = <fs_res>-bookingdate
-                          customer_id    = <fs_res>-customerid
-                          carrier_id     = <fs_res>-carrierid
-                          connection_id  = <fs_res>-connectionid
-                          flight_date    = <fs_res>-flightdate
-                          flight_price   = <fs_res>-flightprice
-                          currency_code  = <fs_res>-currencycode
-                          booking_status = <fs_res>-bookingdate
-          ) TO gt_book.
+        APPEND VALUE #( travelid = <fs_trv>-travel_id
+                        msg      = 'Begin Date cannot be less than Today' ) TO gt_chk_msg.
 
-*          mapped = VALUE #(
-*            zsdi_book_u = VALUE #(
-*                                   %cid      = <fs_res>-%cid
-*                                   %is_draft = <fs_res>-%is_draft
-*                                   %key      = <fs_res>-%key
-*                                   )
-*                          ).
+      ENDIF.
 
-          APPEND VALUE #( %cid      = <fs_res>-%cid
-                          %is_draft = <fs_res>-%is_draft
-                          %key      = <fs_res>-%key )
-                 TO mapped-zsdi_book_u.
+    ENDLOOP.
+    UNASSIGN <fs_trv>.
+    LOOP AT gt_travel_upd ASSIGNING <fs_trv>.
 
-        ENDLOOP.
-      ENDLOOP.
+      IF <fs_trv>-begin_date < cl_abap_context_info=>get_system_date( ).
 
-    ENDIF.
+        APPEND VALUE #( travelid = <fs_trv>-travel_id
+                        msg      = 'Begin Date cannot updated less than Today' ) TO gt_chk_msg.
+
+      ENDIF.
+
+    ENDLOOP.
 
   ENDMETHOD.
 

@@ -29,6 +29,8 @@ CLASS lhc_zsdi_travel_u DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING entities_cba FOR CREATE travel\_book.
     METHODS valcust FOR VALIDATE ON SAVE
        keys FOR travel~valcust.
+    METHODS valdate FOR VALIDATE ON SAVE
+       keys FOR travel~valdate.
 
 ENDCLASS.
 
@@ -106,6 +108,38 @@ CLASS lhc_zsdi_travel_u IMPLEMENTATION.
   METHOD valcust.
   ENDMETHOD.
 
+  METHOD valdate.
+
+    READ ENTITIES OF zsdi_travel_u IN LOCAL MODE
+    ENTITY travel
+    FIELDS ( travelid begindate )
+    WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_res).
+
+    LOOP AT lt_res INTO DATA(ls_res).
+
+      IF ls_res-%data-begindate < cl_abap_context_info=>get_system_date( ).
+
+        APPEND VALUE #( %tky = ls_res-%tky ) TO failed-travel.
+        APPEND VALUE #( %tky               = ls_res-%tky
+                        %element-begindate = if_abap_behv=>mk-on
+                        %msg               = new_message(
+                        id       = 'ZSHUBH_MSG'
+                        number   = 002
+                        severity = if_abap_behv_message=>severity-error
+*                                  v1       =
+*                                  v2       =
+*                                  v3       =
+*                                  v4       =
+                        )
+        ) TO reported-travel.
+
+      ENDIF.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
 ENDCLASS.
 
 CLASS lhc_zsdi_book_u DEFINITION INHERITING FROM cl_abap_behavior_handler.
@@ -164,6 +198,23 @@ CLASS lsc_zsdi_travel_u IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD check_before_save.
+
+    zsdcl_travel_aux=>get_instance( )->prep_check_save_msg( ).
+    DATA(lt_temp_chk_msg) = zsdcl_travel_aux=>get_instance( )->gt_chk_msg.
+
+    LOOP AT lt_temp_chk_msg ASSIGNING FIELD-SYMBOL(<fs_msg>).
+
+      APPEND VALUE #( %tky-travelid = <fs_msg>-travelid ) TO failed-travel.
+      APPEND VALUE #( %tky-travelid = <fs_msg>-travelid
+                      %msg          = new_message_with_text(
+                      severity = if_abap_behv_message=>severity-error
+                      text     = <fs_msg>-msg
+                      )
+                    ) TO reported-travel.
+
+    ENDLOOP.
+
+    UNASSIGN <fs_msg>.
   ENDMETHOD.
 
   METHOD adjust_numbers.
